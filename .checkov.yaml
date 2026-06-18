@@ -1,0 +1,42 @@
+# ============================================
+# CHECKOV CONFIGURATION - EduCloud
+# ============================================
+
+# Directorio a escanear
+directory: terraform
+
+# Framework a escanear
+framework:
+  - terraform
+
+# Formato de salida
+output: junitxml
+
+# Archivo de salida
+output-file-path: results.xml
+
+# Soft fail: reporta pero no falla el pipeline
+soft_fail: false
+
+# Modo silencioso (menos verbose)
+quiet: false
+
+# Evaluación de variables
+evaluate_variables: true
+
+# Descarga de módulos externos
+external_modules_download_path: .external_modules
+
+# Configuración de reporte
+repo_id: educloud/terraform
+branch: dev
+
+# ✅ Excluir directorios (opcional)
+excluded_paths:
+  - "*.terraform"
+  - "*.external_modules"
+
+# ✅ Excluir chequeos que no aplican (opcional)
+# skip_check:
+#   - CKV_AWS_2
+#   - CKV_AWS_18
