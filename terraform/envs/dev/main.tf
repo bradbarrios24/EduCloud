@@ -84,6 +84,27 @@ module "cognito" {
 }
 
 # ============================================
+# 6. MODULO: IAM Roles (Para servicios)
+# ============================================
+module "iam_roles" {
+  source = "../../modules/iam-roles"
+  
+  environment = var.environment
+  
+  # Roles para CI/CD (opcional por ahora)
+  create_codepipeline_role = false  # Lo activaremos después
+  create_codebuild_role    = false  # Lo activaremos después
+  create_terraform_role    = false  # Lo activaremos después
+  
+  # Para usuarios autenticados (opcional)
+  create_api_user_role       = var.create_api_user_roles
+  cognito_identity_pool_id   = module.cognito.identity_pool_id
+  s3_bucket_arn              = module.s3_frontend.bucket_arn
+  
+  tags = local.common_tags
+}
+
+# ============================================
 # OUTPUTS DEL ENTORNO DEV
 # ============================================
 

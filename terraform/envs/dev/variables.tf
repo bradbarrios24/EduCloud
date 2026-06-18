@@ -92,6 +92,16 @@ variable "create_identity_pool" {
 }
 
 # ============================================
+# VARIABLES PARA IAM ROLES
+# ============================================
+
+variable "create_api_user_roles" {
+  description = "Crear roles IAM para usuarios autenticados"
+  type        = bool
+  default     = false
+}
+
+# ============================================
 # ETIQUETAS COMUNES
 # ============================================
 
