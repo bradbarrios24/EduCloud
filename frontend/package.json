@@ -1,0 +1,9 @@
+{
+  "name": "educloud-frontend",
+  "version": "1.0.0",
+  "description": "EduCloud - Plataforma Educativa Frontend",
+  "scripts": {
+    "build": "echo 'Build completed'",
+    "deploy": "aws s3 sync . s3://$(terraform output -raw s3_bucket_name) --delete"
+  }
+}
