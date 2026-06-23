@@ -10,11 +10,13 @@ variable "s3_bucket_domain_name" {
 variable "s3_bucket_arn" {
   description = "ARN del bucket S3"
   type        = string
+  default     = null  # ← opcional ahora
 }
 
 variable "s3_bucket_id" {
   description = "ID del bucket S3"
   type        = string
+  default     = null  # ← opcional ahora
 }
 
 # ============================================
@@ -111,6 +113,12 @@ variable "web_acl_id" {
   default     = null
 }
 
+variable "enable_logging" {
+  type    = bool
+  default = false  # false en dev
+}
+
+
 variable "ssl_support_method" {
   description = "Método de soporte SSL"
   type        = string
@@ -145,11 +153,6 @@ variable "geo_allowed_locations" {
   description = "Lista de países permitidos"
   type        = list(string)
   default     = ["PE"]
-}
-
-# Agregar random_id para logs
-resource "random_id" "log_suffix" {
-  byte_length = 4
 }
 
 variable "tags" {
