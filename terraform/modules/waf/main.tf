@@ -1,19 +1,7 @@
-# ============================================
-# MÓDULO: WAF (Web Application Firewall)
-# ============================================
+# ELIMINAR estos dos bloques:
+# data "aws_wafv2_rule_group" "aws_managed_rules" { ... }
+# data "aws_wafv2_rule_group" "aws_managed_sql" { ... }
 
-# 1. OBTENER REGLAS MANAGED DE AWS
-data "aws_wafv2_rule_group" "aws_managed_rules" {
-  name   = "AWSManagedRulesCommonRuleSet"
-  scope  = "CLOUDFRONT"
-}
-
-data "aws_wafv2_rule_group" "aws_managed_sql" {
-  name   = "AWSManagedRulesSQLiRuleSet"
-  scope  = "CLOUDFRONT"
-}
-
-# 2. CREAR ACL (Access Control List)
 resource "aws_wafv2_web_acl" "this" {
   name        = var.waf_name
   description = var.waf_description
@@ -23,7 +11,6 @@ resource "aws_wafv2_web_acl" "this" {
     allow {}
   }
 
-  # REGLA 1: Reglas Managed de AWS
   rule {
     name     = "AWSManagedRulesCommonRuleSet"
     priority = 1
@@ -34,7 +21,7 @@ resource "aws_wafv2_web_acl" "this" {
 
     statement {
       managed_rule_group_statement {
-        name        = data.aws_wafv2_rule_group.aws_managed_rules.name
+        name        = "AWSManagedRulesCommonRuleSet"  # ← directo, sin data source
         vendor_name = "AWS"
       }
     }
@@ -46,7 +33,6 @@ resource "aws_wafv2_web_acl" "this" {
     }
   }
 
-  # REGLA 2: Protección SQL Injection
   rule {
     name     = "AWSManagedRulesSQLiRuleSet"
     priority = 2
@@ -57,7 +43,7 @@ resource "aws_wafv2_web_acl" "this" {
 
     statement {
       managed_rule_group_statement {
-        name        = data.aws_wafv2_rule_group.aws_managed_sql.name
+        name        = "AWSManagedRulesSQLiRuleSet"  # ← directo, sin data source
         vendor_name = "AWS"
       }
     }
@@ -69,7 +55,6 @@ resource "aws_wafv2_web_acl" "this" {
     }
   }
 
-  # REGLA 3: Rate Limiting (evitar ataques DDoS)
   rule {
     name     = "RateLimitRule"
     priority = 3
@@ -101,10 +86,8 @@ resource "aws_wafv2_web_acl" "this" {
   tags = var.tags
 }
 
-# 3. ASOCIAR WAF CON CLOUDFRONT
 resource "aws_wafv2_web_acl_association" "this" {
-  count = var.cloudfront_distribution_arn != null ? 1 : 0
-  
+  count        = var.cloudfront_distribution_arn != null ? 1 : 0
   resource_arn = var.cloudfront_distribution_arn
   web_acl_arn  = aws_wafv2_web_acl.this.arn
 }
