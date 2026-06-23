@@ -5,9 +5,10 @@
 # 1. MODULO: S3 para Frontend
 module "s3_frontend" {
   source = "../../modules/s3-frontend"
-  
-  bucket_name = var.bucket_name != "" ? var.bucket_name : null
-  
+
+  bucket_name                 = var.bucket_name != "" ? var.bucket_name : null
+  cloudfront_distribution_arn = module.cloudfront.cloudfront_arn
+
   tags = merge(local.common_tags, {
     Name = "EduCloud-Frontend-${var.environment}"
   })
@@ -17,14 +18,12 @@ module "s3_frontend" {
 module "cloudfront" {
   source = "../../modules/cloudfront"
   
-  s3_bucket_domain_name = module.s3_frontend.bucket_domain_name
-  s3_bucket_arn         = module.s3_frontend.bucket_arn
-  s3_bucket_id          = module.s3_frontend.bucket_id
-  
+  s3_bucket_domain_name = module.s3_frontend.bucket_regional_domain_name
   origin_id = "S3FrontendOrigin"
   
   # Configuración personalizada para dev
   default_ttl = 300  # Menos caché en dev
+  web_acl_id = module.waf.waf_arn
   
   tags = merge(local.common_tags, {
     Name = "EduCloud-CDN-${var.environment}"
@@ -34,19 +33,20 @@ module "cloudfront" {
 # 3. MODULO: WAF (Firewall)
 module "waf" {
   source = "../../modules/waf"
-  
+
   waf_name        = "educloud-waf-${var.environment}"
   waf_description = "WAF para proteger CloudFront en ${var.environment}"
   rate_limit      = var.waf_rate_limit
-  
-  cloudfront_distribution_arn = module.cloudfront.cloudfront_arn
-  
+
+  associate_with_cloudfront   = true                              # ← bool estático
+  cloudfront_distribution_arn = module.cloudfront.cloudfront_arn # ← ARN sigue aquí
+
   tags = local.common_tags
 }
 
 # 4. MODULO: Route53 (DNS) - Solo si tienes dominio
 module "route53" {
-  count = var.domain_name != "" ? 1 : 0
+  count = 0
   
   source = "../../modules/route53"
   

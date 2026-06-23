@@ -31,3 +31,9 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "associate_with_cloudfront" {
+  description = "Asociar WAF con CloudFront"
+  type        = bool
+  default     = false
+}
