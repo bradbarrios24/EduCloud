@@ -13,3 +13,9 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "cloudfront_distribution_arn" {
+  description = "ARN de la distribución CloudFront para la bucket policy"
+  type        = string
+  default     = null
+}
