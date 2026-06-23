@@ -1,11 +1,43 @@
-# Ignorar carpetas de Terraform
+# ============================================
+# TERRAFORM
+# ============================================
 .terraform/
 *.tfstate
 *.tfstate.*
-
-# Ignorar archivos de variables sensibles
 terraform.tfvars
 *.auto.tfvars
-
-# Ignorar archivos locales
 .terraform.lock.hcl
+results_junitxmlx.xml
+
+# ============================================
+# FRONTEND (React)
+# ============================================
+frontend/node_modules/
+frontend/build/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# ============================================
+# Checkov
+# ============================================
+results.xml
+
+# ============================================
+# Scripts de ayuda
+# ============================================
+copiar_sin_terraform.ps1
+listado_con_contenido.txt
+
+# ============================================
+# SISTEMA
+# ============================================
+.DS_Store
+Thumbs.db
+*.log
