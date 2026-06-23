@@ -34,19 +34,20 @@ module "cloudfront" {
 # 3. MODULO: WAF (Firewall)
 module "waf" {
   source = "../../modules/waf"
-  
+
   waf_name        = "educloud-waf-${var.environment}"
   waf_description = "WAF para proteger CloudFront en ${var.environment}"
   rate_limit      = var.waf_rate_limit
-  
-  cloudfront_distribution_arn = module.cloudfront.cloudfront_arn
-  
+
+  associate_with_cloudfront   = true                              # ← bool estático
+  cloudfront_distribution_arn = module.cloudfront.cloudfront_arn # ← ARN sigue aquí
+
   tags = local.common_tags
 }
 
 # 4. MODULO: Route53 (DNS) - Solo si tienes dominio
 module "route53" {
-  count = var.domain_name != "" ? 1 : 0
+  count = 0
   
   source = "../../modules/route53"
   

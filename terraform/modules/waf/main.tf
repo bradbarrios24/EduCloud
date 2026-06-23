@@ -87,7 +87,7 @@ resource "aws_wafv2_web_acl" "this" {
 }
 
 resource "aws_wafv2_web_acl_association" "this" {
-  count        = var.cloudfront_distribution_arn != null ? 1 : 0
+  count        = var.associate_with_cloudfront ? 1 : 0   # ← bool conocido en plan
   resource_arn = var.cloudfront_distribution_arn
   web_acl_arn  = aws_wafv2_web_acl.this.arn
 }
