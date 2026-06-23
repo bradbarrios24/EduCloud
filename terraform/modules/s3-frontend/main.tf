@@ -3,7 +3,7 @@
 # ============================================
 
 resource "aws_s3_bucket" "this" {
-  bucket = var.bucket_name != null ? var.bucket_name : "frontend-${random_id.suffix.hex}"
+  bucket = var.bucket_name != null ? var.bucket_name : "frontend-${random_id.suffix[0].hex}"  # ← agregar [0]
   
   tags = var.tags
 }
@@ -29,6 +29,8 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
     id     = "TransitionToInfrequentAccess"
     status = "Enabled"
     
+    filter {}   # ← aplica a todos los objetos
+    
     transition {
       days          = 30
       storage_class = "STANDARD_IA"
@@ -38,6 +40,8 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
   rule {
     id     = "ExpireOldVersions"
     status = "Enabled"
+    
+    filter {}   # ← también aquí
     
     noncurrent_version_expiration {
       noncurrent_days = 90
