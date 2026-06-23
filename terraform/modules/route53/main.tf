@@ -52,8 +52,8 @@ resource "aws_route53_record" "www" {
 resource "aws_route53_query_log" "this" {
   count = var.create_hosted_zone ? 1 : 0
   
-  zone_id = aws_route53_zone.this[0].zone_id
-  cloudwatch_log_group_arn = aws_cloudwatch_log_group.this.arn
+  zone_id                  = aws_route53_zone.this[0].zone_id
+  cloudwatch_log_group_arn = aws_cloudwatch_log_group.this[0].arn  # ← agregar [0]
 }
 
 resource "aws_cloudwatch_log_group" "this" {
