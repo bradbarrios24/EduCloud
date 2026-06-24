@@ -102,6 +102,18 @@ module "iam_roles" {
   tags = local.common_tags
 }
 
+# 7. MÓDULO: API Gateway
+module "api_gateway" {
+  source = "../../modules/api-gateway"
+
+  api_name              = "educloud-api-${var.environment}"
+  api_description       = "API REST de EduCloud - ${var.environment}"
+  stage_name            = var.environment
+  cognito_user_pool_arn = module.cognito.user_pool_arn
+
+  tags = local.common_tags
+}
+
 # ============================================
 # NOTA: Los OUTPUTS están en outputs.tf
 # ============================================

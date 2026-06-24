@@ -167,6 +167,22 @@ output "full_infrastructure_summary" {
   }
 }
 
+# 9. OUTPUTS DE API GATEWAY
+output "api_gateway_url" {
+  description = "URL base del API Gateway"
+  value       = module.api_gateway.invoke_url
+}
+
+output "api_health_url" {
+  description = "URL del endpoint de salud"
+  value       = module.api_gateway.health_url
+}
+
+output "api_cursos_url" {
+  description = "URL del endpoint de cursos"
+  value       = module.api_gateway.cursos_url
+}
+
 # ============================================
 # 8. OUTPUTS PARA CI/CD (Útiles para pipelines)
 # ============================================
@@ -178,5 +194,9 @@ output "ci_cd_config" {
     cloudfront_id        = module.cloudfront.cloudfront_distribution_id
     cognito_user_pool_id = module.cognito.user_pool_id
     cognito_client_id    = module.cognito.client_id
+    api_gateway_url      = module.api_gateway.invoke_url
+    api_gateway_id       = module.api_gateway.api_id
+    api_health_url       = module.api_gateway.health_url
+    api_cursos_url       = module.api_gateway.cursos_url
   }
 }
