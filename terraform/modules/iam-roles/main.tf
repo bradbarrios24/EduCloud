@@ -176,14 +176,15 @@ resource "aws_iam_role" "terraform_role" {
 # 8. POLÍTICA PARA TERRAFORM (Administración completa)
 resource "aws_iam_policy" "terraform_policy" {
   count = var.create_terraform_role ? 1 : 0
-  
+
   name        = "educloud-terraform-policy-${var.environment}"
   description = "Política para Terraform de EduCloud"
-  
+
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
+        Sid    = "GeneralInfrastructure"
         Effect = "Allow"
         Action = [
           "ec2:*",
@@ -192,8 +193,6 @@ resource "aws_iam_policy" "terraform_policy" {
           "route53:*",
           "cognito-idp:*",
           "wafv2:*",
-          "iam:*",
-          "lambda:*",
           "apigateway:*",
           "cloudwatch:*",
           "logs:*",
@@ -204,11 +203,75 @@ resource "aws_iam_policy" "terraform_policy" {
         Resource = "*"
       },
       {
+        # FIX: lambda:* separado en dos bloques
+        # Acciones de gestión (crear, configurar, eliminar) solo sobre funciones educloud-*
+        Sid    = "LambdaManagement"
+        Effect = "Allow"
+        Action = [
+          "lambda:CreateFunction",
+          "lambda:DeleteFunction",
+          "lambda:GetFunction",
+          "lambda:GetFunctionConfiguration",
+          "lambda:ListFunctions",
+          "lambda:ListVersionsByFunction",
+          "lambda:ListAliases",
+          "lambda:CreateAlias",
+          "lambda:DeleteAlias",
+          "lambda:UpdateAlias",
+          "lambda:PublishVersion",
+          "lambda:AddPermission",
+          "lambda:RemovePermission",
+          "lambda:GetPolicy",
+          "lambda:UpdateFunctionConfiguration",
+          "lambda:TagResource",
+          "lambda:UntagResource",
+          "lambda:ListTags"
+        ]
+        Resource = "arn:aws:lambda:*:*:function:educloud-*"
+      },
+      {
+        # FIX: UpdateFunctionCode restringido solo a funciones educloud-*
+        # Evita el vector de escalada "Update Lambda code" sobre funciones con altos privilegios
+        Sid    = "LambdaUpdateCode"
+        Effect = "Allow"
+        Action = [
+          "lambda:UpdateFunctionCode"
+        ]
+        Resource = "arn:aws:lambda:*:*:function:educloud-*"
+      },
+      {
+        Sid    = "IAMReadOnly"
+        Effect = "Allow"
+        Action = [
+          "iam:Get*",
+          "iam:List*",
+          "iam:CreateRole",
+          "iam:DeleteRole",
+          "iam:UpdateRole",
+          "iam:TagRole",
+          "iam:UntagRole",
+          "iam:CreatePolicy",
+          "iam:DeletePolicy",
+          "iam:CreatePolicyVersion",
+          "iam:DeletePolicyVersion",
+          "iam:SetDefaultPolicyVersion",
+          "iam:AttachRolePolicy",
+          "iam:DetachRolePolicy",
+          "iam:PutRolePolicy",
+          "iam:DeleteRolePolicy"
+        ]
+        Resource = [
+          "arn:aws:iam::*:role/educloud-*",
+          "arn:aws:iam::*:policy/educloud-*"
+        ]
+      },
+      {
+        Sid    = "IAMPassRole"
         Effect = "Allow"
         Action = [
           "iam:PassRole"
         ]
-        Resource = "*"
+        Resource = "arn:aws:iam::*:role/educloud-*"
         Condition = {
           "StringEquals" = {
             "iam:PassedToService" = [
