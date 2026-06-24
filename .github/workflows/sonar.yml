@@ -2,9 +2,9 @@
 
 on:
   push:
-    branches: [main, dev]
+    branches: [main, dev, prod]
   pull_request:
-    branches: [main]
+    branches: [main, dev, prod]
 
 jobs:
   sonar:
