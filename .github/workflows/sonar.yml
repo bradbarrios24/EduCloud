@@ -32,6 +32,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           SONAR_SCANNER_OPTS: "-Dsonar.scanner.skipJreProvisioning=true -Dhttp.requestHeader.ngrok-skip-browser-warning=true"
+          
 
       - name: Verificar Quality Gate
         uses: SonarSource/sonarqube-quality-gate-action@v1
