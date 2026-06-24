@@ -1,10 +1,8 @@
 // ============================================
 // CONFIGURACIÓN AWS - EduCloud
 // ============================================
-
 export const awsConfig = {
   region: "us-east-1",
-
   cognito: {
     userPoolId: "us-east-1_SRtb6h9Gi",
     clientId: "60vdacjp2bn8a8hu4egva3u3tf",
@@ -13,12 +11,10 @@ export const awsConfig = {
     redirectUri: "http://localhost:3000",
     scopes: ["email", "openid", "profile"],
   },
-
   cloudfront: {
     url: "https://d13h6elhc0kb8t.cloudfront.net",
     distributionId: "E18QSB741HKZIT",
   },
-
   s3: {
     bucket: "frontend-7ca3a3fa",
   },
@@ -27,7 +23,6 @@ export const awsConfig = {
 // ============================================
 // HELPERS DE AUTENTICACIÓN
 // ============================================
-
 export const getLoginUrl = () => {
   const { domain, clientId, redirectUri, scopes } = awsConfig.cognito;
   const params = new URLSearchParams({
@@ -49,6 +44,7 @@ export const getLogoutUrl = () => {
 };
 
 export const parseCallbackCode = () => {
-  const params = new URLSearchParams(window.location.search);
+  // FIX: globalThis en lugar de window
+  const params = new URLSearchParams(globalThis.location.search);
   return params.get("code");
 };
