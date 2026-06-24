@@ -10,14 +10,14 @@ export default function Hero() {
           <span>escala en la nube</span>
         </h1>
         <p className="hero-sub">
-          EduCloud conecta estudiantes y docentes en una infraestructura segura,
-          rápida y construida sobre AWS.
+          EduCloud conecta estudiantes y docentes en una infraestructura
+          segura, rápida y construida sobre AWS.
         </p>
         <div className="hero-actions">
           <a href="#features" className="btn-primary">Ver características</a>
           <button
             className="btn-secondary"
-            onClick={() => window.location.href = getLoginUrl()}
+            onClick={() => { globalThis.location.href = getLoginUrl(); }}
           >
             Comenzar gratis
           </button>
