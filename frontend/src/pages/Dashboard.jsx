@@ -1,5 +1,6 @@
-import { useNavigate } from "react-router-dom";
+import PropTypes from "prop-types";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
 
 const cards = [
@@ -25,7 +26,6 @@ export default function Dashboard({ user }) {
           <h1>Hola, {user.name || "Estudiante"} 👋</h1>
           <p>Aquí está tu progreso en EduCloud</p>
         </div>
-
         <div className="dashboard-grid">
           {cards.map((c) => (
             <div className="dashboard-card" key={c.label}>
@@ -34,11 +34,8 @@ export default function Dashboard({ user }) {
             </div>
           ))}
         </div>
-
         <div style={{ marginTop: "1rem" }}>
-          <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.25rem", marginBottom: "1rem" }}>
-            Continuar aprendiendo
-          </h2>
+          <h2>Continuar aprendiendo</h2>
           <button className="btn-primary" onClick={() => navigate("/cursos")}>
             Ver todos los cursos
           </button>
@@ -48,3 +45,15 @@ export default function Dashboard({ user }) {
     </>
   );
 }
+
+// FIX: PropTypes definidos
+Dashboard.propTypes = {
+  user: PropTypes.shape({
+    name: PropTypes.string,
+    email: PropTypes.string,
+  }),
+};
+
+Dashboard.defaultProps = {
+  user: null,
+};
