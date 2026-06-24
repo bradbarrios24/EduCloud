@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getLoginUrl, parseCallbackCode } from "../services/aws-config";
@@ -14,8 +15,6 @@ export default function Login({ user, onLogin }) {
   useEffect(() => {
     const code = parseCallbackCode();
     if (code) {
-      // Aquí intercambiarías el code por tokens con tu backend
-      // Por ahora simulamos el login con datos del URL
       const mockUser = { email: "usuario@educloud.com", name: "Estudiante" };
       onLogin(mockUser);
       navigate("/dashboard");
@@ -27,16 +26,27 @@ export default function Login({ user, onLogin }) {
       <div className="login-card">
         <h2>Bienvenido a EduCloud</h2>
         <p>Inicia sesión con tu cuenta para acceder a los cursos y tu progreso.</p>
-
         <button
           className="login-btn-cognito"
-          onClick={() => window.location.href = getLoginUrl()}
+          onClick={() => { globalThis.location.href = getLoginUrl(); }}
         >
           Continuar con Cognito
         </button>
-
         <div className="login-divider">Plataforma segura · AWS Cognito</div>
       </div>
     </div>
   );
 }
+
+// FIX: PropTypes definidos
+Login.propTypes = {
+  user: PropTypes.shape({
+    name: PropTypes.string,
+    email: PropTypes.string,
+  }),
+  onLogin: PropTypes.func.isRequired,
+};
+
+Login.defaultProps = {
+  user: null,
+};
