@@ -16,26 +16,32 @@ echo "=========================================="
 cd "${ROOT_DIR}"
 
 # ============================================
+# LIMPIEZA: evita que un results.xml corrupto
+# (o convertido en carpeta) interfiera
+# ============================================
+
+if [ -d "${RESULTS_FILE}" ]; then
+  echo "⚠️  results.xml es una carpeta, eliminando..."
+  rm -rf "${RESULTS_FILE}"
+fi
+
+# ============================================
 # EJECUTAR CHECKOV USANDO CONFIGURACIÓN
 # ============================================
 
 if [ -f "${CONFIG_FILE}" ]; then
   echo "✅ Usando configuración: ${CONFIG_FILE}"
-  
-  # Con Docker
+
   docker run --rm \
     -v "${ROOT_DIR}:/tf" \
     --workdir /tf \
     bridgecrew/checkov:3 \
     --config-file /tf/.checkov.yaml
-  
-  # Sin Docker (si tienes checkov instalado)
-  # checkov --config-file .checkov.yaml
-  
+
 else
   echo "⚠️  No se encuentra .checkov.yaml"
   echo "ℹ️  Usando configuración por defecto..."
-  
+
   docker run --rm \
     -v "${ROOT_DIR}:/tf" \
     --workdir /tf \
@@ -58,9 +64,9 @@ echo "=========================================="
 if [ -f "${RESULTS_FILE}" ]; then
   ERROR_COUNT=$(grep -c "failure" "${RESULTS_FILE}" 2>/dev/null || echo "0")
   TOTAL_TESTS=$(grep -c "testcase" "${RESULTS_FILE}" 2>/dev/null || echo "0")
-  
+
   echo "📊 TESTS: ${TOTAL_TESTS} | FALLOS: ${ERROR_COUNT}"
-  
+
   if [ "${ERROR_COUNT}" -gt 0 ]; then
     echo ""
     echo "⚠️  Errores encontrados:"
