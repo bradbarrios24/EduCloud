@@ -41,3 +41,4 @@ listado_con_contenido.txt
 .DS_Store
 Thumbs.db
 *.log
+.scannerwork/
