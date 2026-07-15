@@ -367,3 +367,176 @@ resource "aws_iam_role_policy_attachment" "api_user_attach" {
   role       = aws_iam_role.api_user_role[0].name
   policy_arn = aws_iam_policy.api_user_policy[0].arn
 }
+
+# ============================================
+# 13. ROLES POR TIPO DE USUARIO (Admin / Docente / Estudiante)
+# Asumidos vía Cognito Identity Pool, distintos permisos por endpoint
+# ============================================
+
+data "aws_iam_policy_document" "role_based_assume" {
+  count = var.create_role_based_access ? 1 : 0
+
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+
+    principals {
+      type        = "Federated"
+      identifiers = ["cognito-identity.amazonaws.com"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "cognito-identity.amazonaws.com:aud"
+      values   = [coalesce(var.cognito_identity_pool_id, "FIXME")]
+    }
+
+    condition {
+      test     = "ForAnyValue:StringLike"
+      variable = "cognito-identity.amazonaws.com:amr"
+      values   = ["authenticated"]
+    }
+  }
+}
+
+# --- ROL ADMIN ---
+resource "aws_iam_role" "admin_role" {
+  count = var.create_role_based_access ? 1 : 0
+
+  name               = "educloud-admin-role-${var.environment}"
+  assume_role_policy = data.aws_iam_policy_document.role_based_assume[0].json
+
+  tags = var.tags
+}
+
+resource "aws_iam_policy" "admin_policy" {
+  count = var.create_role_based_access ? 1 : 0
+
+  name        = "educloud-admin-policy-${var.environment}"
+  description = "Acceso total: tareas, examenes, archivos"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["execute-api:Invoke"]
+        Resource = "${var.api_gateway_execution_arn}/*"
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["s3:GetObject", "s3:PutObject", "s3:DeleteObject", "s3:ListBucket"]
+        Resource = [
+          var.uploads_bucket_arn,
+          "${var.uploads_bucket_arn}/*"
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "admin_attach" {
+  count = var.create_role_based_access ? 1 : 0
+
+  role       = aws_iam_role.admin_role[0].name
+  policy_arn = aws_iam_policy.admin_policy[0].arn
+}
+
+# --- ROL DOCENTE ---
+resource "aws_iam_role" "docente_role" {
+  count = var.create_role_based_access ? 1 : 0
+
+  name               = "educloud-docente-role-${var.environment}"
+  assume_role_policy = data.aws_iam_policy_document.role_based_assume[0].json
+
+  tags = var.tags
+}
+
+resource "aws_iam_policy" "docente_policy" {
+  count = var.create_role_based_access ? 1 : 0
+
+  name        = "educloud-docente-policy-${var.environment}"
+  description = "Crear examenes/tareas, subir y leer archivos"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid      = "LecturaGeneral"
+        Effect   = "Allow"
+        Action   = ["execute-api:Invoke"]
+        Resource = "${var.api_gateway_execution_arn}/GET/*"
+      },
+      {
+        Sid      = "CrearTareasExamenes"
+        Effect   = "Allow"
+        Action   = ["execute-api:Invoke"]
+        Resource = [
+          "${var.api_gateway_execution_arn}/POST/tareas",
+          "${var.api_gateway_execution_arn}/POST/examenes"
+        ]
+      },
+      {
+        Sid      = "ArchivosDocente"
+        Effect   = "Allow"
+        Action   = ["s3:GetObject", "s3:PutObject"]
+        Resource = "${var.uploads_bucket_arn}/*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "docente_attach" {
+  count = var.create_role_based_access ? 1 : 0
+
+  role       = aws_iam_role.docente_role[0].name
+  policy_arn = aws_iam_policy.docente_policy[0].arn
+}
+
+# --- ROL ESTUDIANTE ---
+resource "aws_iam_role" "estudiante_role" {
+  count = var.create_role_based_access ? 1 : 0
+
+  name               = "educloud-estudiante-role-${var.environment}"
+  assume_role_policy = data.aws_iam_policy_document.role_based_assume[0].json
+
+  tags = var.tags
+}
+
+resource "aws_iam_policy" "estudiante_policy" {
+  count = var.create_role_based_access ? 1 : 0
+
+  name        = "educloud-estudiante-policy-${var.environment}"
+  description = "Leer y presentar tareas/examenes, sin escritura de archivos"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid      = "LecturaGeneral"
+        Effect   = "Allow"
+        Action   = ["execute-api:Invoke"]
+        Resource = "${var.api_gateway_execution_arn}/GET/*"
+      },
+      {
+        Sid      = "PresentarEntregas"
+        Effect   = "Allow"
+        Action   = ["execute-api:Invoke"]
+        Resource = "${var.api_gateway_execution_arn}/POST/entregas"
+      },
+      {
+        Sid      = "SoloLecturaArchivos"
+        Effect   = "Allow"
+        Action   = ["s3:GetObject"]
+        Resource = "${var.uploads_bucket_arn}/*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "estudiante_attach" {
+  count = var.create_role_based_access ? 1 : 0
+
+  role       = aws_iam_role.estudiante_role[0].name
+  policy_arn = aws_iam_policy.estudiante_policy[0].arn
+}

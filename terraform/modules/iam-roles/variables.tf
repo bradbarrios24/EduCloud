@@ -78,3 +78,26 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "create_role_based_access" {
+  description = "Crear roles admin/docente/estudiante"
+  type        = bool
+  default     = true
+}
+
+variable "api_gateway_execution_arn" {
+  description = "Execution ARN del stage de API Gateway (ej: arn:aws:execute-api:us-east-1:123456789012:abc123/prod)"
+  type        = string
+  default     = ""
+
+  validation {
+    condition     = !var.create_role_based_access || can(regex("^arn:aws:execute-api:", var.api_gateway_execution_arn))
+    error_message = "api_gateway_execution_arn debe ser un execution ARN válido cuando create_role_based_access = true. Verifica que estás pasando module.api_gateway.execution_arn en envs/dev/main.tf."
+  }
+}
+
+variable "uploads_bucket_arn" {
+  description = "ARN del bucket S3 de archivos/uploads"
+  type        = string
+  default     = ""
+}

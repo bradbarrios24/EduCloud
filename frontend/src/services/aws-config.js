@@ -1,6 +1,8 @@
 // ============================================
 // CONFIGURACIÓN AWS - EduCloud
 // ============================================
+const isProd = globalThis.location.hostname !== "localhost";
+
 export const awsConfig = {
   region: "us-east-1",
   cognito: {
@@ -8,15 +10,10 @@ export const awsConfig = {
     clientId: "60vdacjp2bn8a8hu4egva3u3tf",
     domain: "auth-dev-educloud.auth.us-east-1.amazoncognito.com",
     loginUrl: "https://auth-dev-educloud.auth.us-east-1.amazoncognito.com/login",
-    redirectUri: "http://localhost:3000",
+    redirectUri: isProd
+      ? "https://d13h6elhc0kb8t.cloudfront.net"
+      : "http://localhost:3000",
     scopes: ["email", "openid", "profile"],
-  },
-  cloudfront: {
-    url: "https://d13h6elhc0kb8t.cloudfront.net",
-    distributionId: "E18QSB741HKZIT",
-  },
-  s3: {
-    bucket: "frontend-7ca3a3fa",
   },
 };
 

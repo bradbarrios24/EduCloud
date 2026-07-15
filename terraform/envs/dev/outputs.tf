@@ -152,15 +152,15 @@ output "full_infrastructure_summary" {
     s3_bucket          = module.s3_frontend.bucket_name
     cloudfront_url     = "https://${module.cloudfront.cloudfront_domain_name}"
     website_url        = var.domain_name != "" ? "https://${var.subdomain}.${var.domain_name}" : null
-    
+
     # Seguridad
     waf_enabled        = true
     waf_arn            = module.waf.waf_arn
-    
+
     # Autenticación
     cognito_user_pool  = module.cognito.user_pool_id
     cognito_login_url  = module.cognito.login_url
-    
+
     # DNS
     dns_zone_id        = try(module.route53[0].zone_id, null)
     custom_domain      = var.domain_name != "" ? var.domain_name : null
@@ -183,6 +183,19 @@ output "api_cursos_url" {
   value       = module.api_gateway.cursos_url
 }
 
+output "cloudwatch_dashboard_url" {
+  value = module.cloudwatch.dashboard_url
+}
+
+output "sns_topic_arn" {
+  value = module.sns.topic_arn
+}
+
+output "api_mensajes_url" {
+  description = "URL del endpoint de mensajes"
+  value       = module.api_gateway.mensajes_url
+}
+
 # ============================================
 # 8. OUTPUTS PARA CI/CD (Útiles para pipelines)
 # ============================================
@@ -199,4 +212,99 @@ output "ci_cd_config" {
     api_health_url       = module.api_gateway.health_url
     api_cursos_url       = module.api_gateway.cursos_url
   }
+}
+
+# ============================================
+# 10. OUTPUTS DE VPC
+# ============================================
+
+output "vpc_id" {
+  description = "ID de la VPC del pipeline de mensajeria"
+  value       = module.vpc.vpc_id
+}
+
+output "vpc_private_subnet_id" {
+  description = "ID de la subred privada (Lambda procesadora)"
+  value       = module.vpc.private_subnet_id
+}
+
+output "vpc_public_subnet_id" {
+  description = "ID de la subred publica (NAT Gateway)"
+  value       = module.vpc.public_subnet_id
+}
+
+output "lambda_security_group_id" {
+  description = "ID del Security Group de la Lambda procesadora"
+  value       = module.vpc.lambda_security_group_id
+}
+
+# ============================================
+# 11. OUTPUTS DE SQS
+# ============================================
+
+output "sqs_queue_arn" {
+  description = "ARN de la cola SQS principal"
+  value       = module.sqs.queue_arn
+}
+
+output "sqs_queue_url" {
+  description = "URL de la cola SQS principal"
+  value       = module.sqs.queue_url
+}
+
+output "sqs_dlq_arn" {
+  description = "ARN de la Dead Letter Queue (mensajes fallidos tras 5 reintentos)"
+  value       = module.sqs.dlq_arn
+}
+
+output "sqs_dlq_url" {
+  description = "URL de la Dead Letter Queue"
+  value       = module.sqs.dlq_url
+}
+
+# ============================================
+# 12. OUTPUTS DE SES
+# ============================================
+
+output "ses_identity_arn" {
+  description = "ARN de la identidad SES verificada"
+  value       = module.ses.identity_arn
+}
+
+output "ses_verified_identity" {
+  description = "Dominio o email verificado en SES"
+  value       = module.ses.verified_identity
+}
+
+output "ses_domain_verification_token" {
+  description = "Token TXT de verificacion de dominio SES (agregar en el DNS)"
+  value       = module.ses.domain_verification_token
+}
+
+output "ses_dkim_tokens" {
+  description = "Tokens DKIM de SES (agregar como registros CNAME en el DNS)"
+  value       = module.ses.dkim_tokens
+}
+
+# ============================================
+# 13. OUTPUTS DE LAMBDA PROCESSOR
+# ============================================
+
+output "lambda_processor_function_arn" {
+  description = "ARN de la funcion Lambda procesadora"
+  value       = module.lambda_processor.function_arn
+}
+
+output "lambda_processor_function_name" {
+  description = "Nombre de la funcion Lambda procesadora"
+  value       = module.lambda_processor.function_name
+}
+
+# ============================================
+# 14. OUTPUTS DE VPC ENDPOINTS
+# ============================================
+
+output "ses_vpc_endpoint_id" {
+  description = "ID del VPC Endpoint de SES (si esta habilitado)"
+  value       = try(module.vpc_endpoints[0].vpc_endpoint_id, null)
 }

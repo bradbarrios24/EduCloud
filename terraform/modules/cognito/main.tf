@@ -81,15 +81,6 @@ resource "random_id" "suffix" {
   byte_length = 4
 }
 
-# 4. USER GROUP (Administradores)
-resource "aws_cognito_user_group" "admins" {
-  count = var.create_admin_group ? 1 : 0
-  
-  name         = "Admins"
-  user_pool_id = aws_cognito_user_pool.this.id
-  description  = "Grupo de administradores de EduCloud"
-}
-
 # 5. IDENTITY POOL (Para acceso a AWS desde frontend)
 resource "aws_cognito_identity_pool" "this" {
   count = var.create_identity_pool ? 1 : 0
@@ -153,6 +144,12 @@ resource "aws_iam_role_policy" "authenticated" {
       }
     ]
   })
+}
+
+resource "aws_cognito_managed_login_branding" "this" {
+  user_pool_id                = aws_cognito_user_pool.this.id
+  client_id                   = aws_cognito_user_pool_client.this.id
+  use_cognito_provided_values = true
 }
 
 # 7. OUTPUTS INTERNOS

@@ -45,3 +45,15 @@ output "api_user_role_name" {
   description = "Nombre del rol de API Users"
   value       = try(aws_iam_role.api_user_role[0].name, null)
 }
+
+output "admin_role_arn" {
+  value = var.create_role_based_access ? aws_iam_role.admin_role[0].arn : null
+}
+
+output "docente_role_arn" {
+  value = var.create_role_based_access ? aws_iam_role.docente_role[0].arn : null
+}
+
+output "estudiante_role_arn" {
+  value = var.create_role_based_access ? aws_iam_role.estudiante_role[0].arn : null
+}

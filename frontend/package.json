@@ -12,13 +12,30 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "deploy": "npm run build && aws s3 sync build/ s3://frontend-7ca3a3fa --delete && aws cloudfront create-invalidation --distribution-id E18QSB741HKZIT --paths \"/*\""
+    "deploy": "npm run build && aws s3 sync build/ s3://frontend-7ca3a3fa --delete --cache-control max-age=31536000,public --exclude index.html && aws s3 cp build/index.html s3://frontend-7ca3a3fa/index.html --cache-control no-cache,no-store,must-revalidate && aws cloudfront create-invalidation --distribution-id E18QSB741HKZIT --paths \"/*\""
   },
   "eslintConfig": {
-    "extends": ["react-app"]
+    "extends": [
+      "react-app"
+    ],
+    "env": {
+      "browser": true,
+      "es2020": true
+    },
+    "globals": {
+      "globalThis": "readonly"
+    }
   },
   "browserslist": {
-    "production": [">0.2%", "not dead", "not op_mini all"],
-    "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }
