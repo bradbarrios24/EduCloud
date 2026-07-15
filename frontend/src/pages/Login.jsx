@@ -16,7 +16,7 @@ export default function Login() {
         <h2>Bienvenido a EduCloud</h2>
         <p>Inicia sesión con tu cuenta para acceder a tus cursos y evaluaciones.</p>
         <button className="login-btn-cognito" onClick={login}>
-          Continuar con Cognito
+          Continuar
         </button>
         <div className="login-divider">Plataforma segura · AWS Cognito</div>
       </div>
