@@ -253,6 +253,16 @@ variable "enable_vpc_endpoints" {
   default     = false
 }
 
+variable "grafana_admin_password" {
+  type      = string
+  sensitive = true
+}
+
+variable "sonarqube_db_password" {
+  type      = string
+  sensitive = true
+}
+
 # ============================================
 # ETIQUETAS COMUNES
 # ============================================

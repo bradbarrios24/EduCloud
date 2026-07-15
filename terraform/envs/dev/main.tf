@@ -98,7 +98,7 @@ module "iam_roles" {
   s3_bucket_arn              = module.s3_frontend.bucket_arn
 
   api_gateway_execution_arn = module.api_gateway.execution_arn
-  uploads_bucket_arn        = module.s3_frontend.bucket_arn   # <- agrega esta línea (ver nota abajo)
+  uploads_bucket_arn = module.s3_uploads.bucket_arn
 
   tags = local.common_tags
 }
@@ -235,6 +235,71 @@ module "vpc_endpoints" {
 
   environment = var.environment
   tags        = local.common_tags
+}
+
+# 15. MÓDULO: S3 Uploads
+module "s3_uploads" {
+  source = "../../modules/s3-uploads"
+
+  bucket_prefix = "educloud-uploads"
+  environment   = var.environment
+
+  cors_allowed_origins = ["https://${module.cloudfront.cloudfront_domain_name}"]
+
+  tags = local.common_tags
+}
+
+# En envs/dev/main.tf
+
+module "ecs_cluster" {
+  source = "../../modules/ecs-cluster"
+
+  cluster_name = "demo-tools-${var.environment}"
+  use_spot     = true # más barato para una demo de 8h
+
+  tags = local.common_tags
+}
+
+module "ecs_grafana" {
+  source = "../../modules/ecs-grafana"
+
+  environment         = var.environment
+  vpc_id              = module.vpc.vpc_id           # ajusta al output real de tu módulo vpc
+  subnet_id            = module.vpc.public_subnet_id # ajusta al output real
+  cluster_id           = module.ecs_cluster.cluster_id
+  execution_role_arn   = module.ecs_cluster.execution_role_arn
+  allowed_cidr_blocks  = ["190.235.110.178/32"] # reemplaza por tu IP real
+  admin_password       = var.grafana_admin_password
+
+  tags = local.common_tags
+}
+
+module "ecs_sonarqube" {
+  source = "../../modules/ecs-sonarqube"
+
+  environment         = var.environment
+  vpc_id              = module.vpc.vpc_id
+  subnet_id            = module.vpc.public_subnet_id
+  cluster_id           = module.ecs_cluster.cluster_id
+  execution_role_arn   = module.ecs_cluster.execution_role_arn
+  allowed_cidr_blocks  = ["190.235.110.178/32"]
+  db_password          = var.sonarqube_db_password
+
+  tags = local.common_tags
+}
+
+module "ecs_jenkins" {
+  source = "../../modules/ecs-jenkins"
+
+  environment         = var.environment
+  vpc_id              = module.vpc.vpc_id           # ajusta al output real de tu módulo vpc
+  subnet_id           = module.vpc.public_subnet_id # ajusta al output real
+  cluster_id          = module.ecs_cluster.cluster_id
+  execution_role_arn  = module.ecs_cluster.execution_role_arn
+  allowed_cidr_blocks = ["190.235.110.178/32"] # reemplaza por tu IP real
+  aws_region          = var.aws_region
+
+  tags = local.common_tags
 }
 
 # ============================================
