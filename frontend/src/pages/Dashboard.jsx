@@ -1,6 +1,5 @@
-import PropTypes from "prop-types";
-import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import Footer from "../components/Footer";
 
 const cards = [
@@ -10,20 +9,15 @@ const cards = [
   { label: "Certificados", value: "1" },
 ];
 
-export default function Dashboard({ user }) {
+export default function Dashboard() {
+  const { user } = useAuth();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!user) navigate("/login");
-  }, [user, navigate]);
-
-  if (!user) return null;
 
   return (
     <>
       <div className="dashboard">
         <div className="dashboard-header">
-          <h1>Hola, {user.name || "Estudiante"} 👋</h1>
+          <h1>Hola, {user?.name || "Estudiante"} 👋</h1>
           <p>Aquí está tu progreso en EduCloud</p>
         </div>
         <div className="dashboard-grid">
@@ -45,15 +39,3 @@ export default function Dashboard({ user }) {
     </>
   );
 }
-
-// FIX: PropTypes definidos
-Dashboard.propTypes = {
-  user: PropTypes.shape({
-    name: PropTypes.string,
-    email: PropTypes.string,
-  }),
-};
-
-Dashboard.defaultProps = {
-  user: null,
-};

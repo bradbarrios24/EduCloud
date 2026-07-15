@@ -1,6 +1,8 @@
-import { getLoginUrl } from "../services/aws-config";
+import { useAuth } from "../context/AuthContext";
 
 export default function Hero() {
+  const { login } = useAuth();
+
   return (
     <section className="hero">
       <div>
@@ -17,7 +19,7 @@ export default function Hero() {
           <a href="#features" className="btn-primary">Ver características</a>
           <button
             className="btn-secondary"
-            onClick={() => { globalThis.location.href = getLoginUrl(); }}
+            onClick={login}
           >
             Comenzar gratis
           </button>
@@ -26,4 +28,3 @@ export default function Hero() {
     </section>
   );
 }
-
