@@ -282,7 +282,7 @@ module "ecs_sonarqube" {
   subnet_id            = module.vpc.public_subnet_id
   cluster_id           = module.ecs_cluster.cluster_id
   execution_role_arn   = module.ecs_cluster.execution_role_arn
-  allowed_cidr_blocks  = ["190.235.110.178/32"]
+  allowed_cidr_blocks = ["0.0.0.0/0"]
   db_password          = var.sonarqube_db_password
 
   tags = local.common_tags
